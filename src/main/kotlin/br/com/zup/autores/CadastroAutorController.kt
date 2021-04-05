@@ -9,12 +9,18 @@ import javax.validation.Valid
 
 @Validated
 @Controller("/autores")
-class CadastroAutorController(val autorRepository: AutorRepository) {
+class CadastroAutorController(
+    val autorRepository: AutorRepository,
+    val enderecoClient: EnderecoClient
+) {
 
     @Post
     // Anotação @Body apenas como dica visual, Micronaut entende que o parâmetro se trata de um request body
     fun cadastra(@Body @Valid request: NovoAutorRequest): Autor {
-        val autor = request.paraAutor()
+
+        val enderecoResponse = enderecoClient.consulta(request.cep)
+
+        val autor = request.paraAutor(enderecoResponse.body()!!)
         println("Autor: ${autor.nome}")
 
         autorRepository.save(autor)
